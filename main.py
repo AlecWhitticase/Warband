@@ -151,30 +151,34 @@ def generate_mission():
     return mission(type, severity, reward, foe)
 
 
-def play_mission(marines, game_state, mission_choice):
-    #nothing yet but will be the main game loop
-    #using pygame, creates a 30x30 grid with the marines on the left and the enemies on the right
-    #the player can move the marines and attack the enemies
-    #the player wins if all the enemies are defeated
-    #the player loses if all the marines are defeated
+def attack(marine):
+    pass
 
-    #initialize pygame
-    pygame.init()
-    #set the screen size
-    screen = pygame.display.set_mode((600, 600))
-    #create a 30x30 grid of squares
-    for i in range(30):
-        for j in range(30):
-            pygame.draw.rect(screen, (255, 255, 255), (i * 20, j * 20, 20, 20))
-    #place the marines on the left side of the grid in random positions
-    for i in range(4):
-        x = random.randint(0, 14)
-        y = random.randint(0, 29)
-        #write the name of the marine on the grid
-        font = pygame.font.Font(None, 36)
-        text = font.render(marines[i].name, True, (0, 0, 0))
-        screen.blit(text, (x * 20, y * 20))
+def play_mission(marines, game_state, mission_choice):
+    #missions are played in turns, the player and the enemy taking turns to attack each other. 
+    #each marine gets to attack once per turn, and the enemy attacks four times total per turn
+    #draw a tk inter window with the chosen marines on the left and the enemy on the right
     
+    #create a window
+    window = tk.Tk()
+    window.title("Mission")
+    window.geometry("800x600")
+    #create a canvas
+    canvas = tk.Canvas(window, width = 800, height = 600)
+    canvas.pack()
+    #draw the marines on the left as buttons
+    for i in range(4):
+        #create a button for each marine
+        marine = tk.Button(window, text = marines[i].name, command=attack(marines[i]))
+        marine.place(x = 100, y = 100 + 100 * i)
+    #do only this for now
+
+
+
+    #end thingy
+    window.mainloop()
+
+
 
 
 def main():
@@ -213,7 +217,6 @@ def main():
                 marines.append(marine)
             #the player then plays the mission
             play_mission(marines,game_state1,mission_choice)
-
             game_state1.change_turn(turn + 1)
         elif choice == "2":
             print("You pass a day")
