@@ -1,5 +1,32 @@
 import random
 import lists
+import tkinter as tk
+import pygame
+
+class game_state:
+    #defines a class of game_state with a turn counter, warband, and missions
+    def __init__(self, turn, warband, missions):
+        self.turn = turn
+        self.warband = warband
+        self.missions = missions
+    def __str__(self):
+        #returns a string with the turn, warband, and missions of the game_state
+        return "Turn: " + str(self.turn) + "\nWarband: " + str(self.warband) + "\nMissions: " + str(self.missions)
+    def change_turn(self, turn):
+        #changes the turn of the game_state
+        self.turn = turn
+    def change_warband(self, warband):
+        #changes the warband of the game_state
+        self.warband = warband
+    def change_missions(self, missions):
+        #changes the missions of the game_state
+        self.missions = missions
+    def add_mission(self, mission):
+        #adds a mission to the game_state
+        self.missions.append(mission)
+    def remove_mission(self, mission):
+        #removes a mission from the game_state
+        self.missions.remove(mission)
 
 class mission:
     #defines a class of mission with a type, serverity(difficulty), reward, and a type of foe
@@ -87,7 +114,9 @@ class ChaosSpaceMarine:
             if self.xp >= 200:
                 self.role = "Archmage"
                 self.abilities.append("Chaos Familiar")
-
+    def name(self):
+        #returns the name of the chaos space marine
+        return self.name
 
 def warband_generate():
     #returns a roster of the warband with 10 chaos space marines each randomly generated using marine_generate
@@ -122,6 +151,32 @@ def generate_mission():
     return mission(type, severity, reward, foe)
 
 
+def play_mission(marines, game_state, mission_choice):
+    #nothing yet but will be the main game loop
+    #using pygame, creates a 30x30 grid with the marines on the left and the enemies on the right
+    #the player can move the marines and attack the enemies
+    #the player wins if all the enemies are defeated
+    #the player loses if all the marines are defeated
+
+    #initialize pygame
+    pygame.init()
+    #set the screen size
+    screen = pygame.display.set_mode((600, 600))
+    #create a 30x30 grid of squares
+    for i in range(30):
+        for j in range(30):
+            pygame.draw.rect(screen, (255, 255, 255), (i * 20, j * 20, 20, 20))
+    #place the marines on the left side of the grid in random positions
+    for i in range(4):
+        x = random.randint(0, 14)
+        y = random.randint(0, 29)
+        #write the name of the marine on the grid
+        font = pygame.font.Font(None, 36)
+        text = font.render(marines[i].name, True, (0, 0, 0))
+        screen.blit(text, (x * 20, y * 20))
+    
+
+
 def main():
     turn = 0
     #generates a warband of 10 chaos space marines and prints their stats
@@ -129,9 +184,10 @@ def main():
     missions = []
     for i in range(4):
         missions.append(generate_mission())
+    game_state1 = game_state(turn, warband, missions)
     #start a loop based on the turn counter. Each day, players have the option to take a mission, pass a day or view the roster
     while turn < 10:
-        print("Day " + str(turn + 1))
+        print("Day " + str(game_state1.turn + 1))
         print("1. Take a mission")
         print("2. Pass a day")
         print("3. View Roster")
@@ -143,20 +199,25 @@ def main():
                 print(str(i + 1) + ". " + str(missions[i]))
             mission_choice = input("Which mission would you like to take? ")
             mission_choice = int(mission_choice)
+
             #the player then selects four marines to take on the mission
             marines = []
             for i in range(4):
                 print("Select a marine for mission slot " + str(i + 1))
                 for marine in warband:
-                    print(marine)
+                    if marine not in marines:
+                        print(marine)
                 marine_choice = input("Which marine would you like to take? ")
                 marine_choice = int(marine_choice)
                 marines.append(warband[marine_choice - 1])
-                #UP TO HERE FOR TODAY
-            turn += 1
+                marines.append(marine)
+            #the player then plays the mission
+            play_mission(marines,game_state1,mission_choice)
+
+            game_state1.change_turn(turn + 1)
         elif choice == "2":
             print("You pass a day")
-            turn += 1
+            game_state1.change_turn(turn + 1)
         else:
             print("You view the roster")
             for marine in warband:
